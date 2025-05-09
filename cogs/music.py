@@ -11,6 +11,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from db import Base, get_db
 import uuid
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # DB 테이블 정의
 # ========================================================================================
 class GuildMusicSettings(Base):
@@ -35,8 +39,7 @@ class Queues(Base):
 
 # 음악 재생 설정
 #========================================================================================
-ffmpeg_path = "C:\\ffmpeg\\bin\\ffmpeg.exe"  # FFmpeg 경로 윈도우 사용시
-# ffmpeg_path = 'ffmpeg' # FFmpeg 경로 리눅스 사용시
+ffmpeg_path = os.getenv('FFMPEG_PATH')  # FFmpeg 경로
 ffmpeg_source = []
 ffmpeg_options = {
         'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',

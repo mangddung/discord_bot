@@ -18,7 +18,6 @@ else:
 discord_token = os.getenv('DISCORD_TOKEN')
 # typecast_api =os.getenv('TYPECAST_API')
 bot_prefix = config["prefix"]
-db_name = os.getenv('DB_NAME')
 
 # =========================
 
