@@ -1,0 +1,11 @@
+__pycache__/
+config.json
+.env
+*.db
+discord.log
+old_main.py
+self_bot.py
+*.log
+/functions.py
+cogs/jungan.py
+cogs/z_*.py
