@@ -1,13 +1,13 @@
 # Discord Bot
 
-HMH는 다양한 유틸리티 및 음악 기능을 제공하는 Discord 봇입니다.  
+다양한 유틸리티 및 음악 기능을 제공하는 Discord 봇입니다. 이전에 공개한 코드들을 개선, 수정하여 모듈화 시켰습니다.
 음악 재생, 취침 모드 제어, 경기 팀 매칭, 추첨 기능 등을 통해 서버 관리와 즐거운 상호작용을 돕습니다.
 (GPT로 작성된 README 파일입니다.)
 ---
 
 ## 📦 주요 기능
 
-### 🎵 music.py - 음악 재생 봇
+### 🎵 music.py - 음악 재생 봇 [원본 코드](https://github.com/mangddung/music-bot)
 - 유튜브 링크 또는 검색어 기반으로 음악을 재생합니다.
 - 음악 대기열 관리 및 자동 재생을 지원합니다.
 - 전용 텍스트 채널 생성 및 패널 UI 제공.
@@ -21,7 +21,7 @@ HMH는 다양한 유틸리티 및 음악 기능을 제공하는 Discord 봇입�
 
 ---
 
-### 💤 sleep_mode.py - 취침 모드
+### 💤 sleep_mode.py - 취침 모드 [원본 코드](https://github.com/mangddung/discord-bot)
 - 유저가 설정한 시간 동안 보이스 채널 접속을 제한합니다.
 - 평일/휴일 설정 지원 및 자동 퇴장/알림 기능 제공.
 - 데이터는 SQLite 및 SQLAlchemy ORM으로 저장됩니다.
@@ -30,7 +30,7 @@ HMH는 다양한 유틸리티 및 음악 기능을 제공하는 Discord 봇입�
 
 ---
 
-### 🏅 match_maker.py - 경기 팀 생성 도우미
+### 🏅 match_maker.py - 경기 팀 생성 도우미 [원본 코드](https://github.com/mangddung/discord-match-maker-bot)
 - 경기 참가자 등록 및 팀 자동 분배 기능을 제공합니다.
 - 참가자들을 보이스 채널별로 분산 또는 통합 이동 가능.
 - 동일 명령자 기반으로 복수 경기 지원.
@@ -39,7 +39,7 @@ HMH는 다양한 유틸리티 및 음악 기능을 제공하는 Discord 봇입�
 
 ---
 
-### 🔍 find_common_match.py - 롤 경기 분석
+### 🔍 find_common_match.py - 롤 공통 매치 찾기 [원본 코드](https://github.com/mangddung/find_riot_common_match)
 - Riot API 기반으로 두 플레이어의 최근 경기 중 공통 매치를 찾습니다.
 - 최대 300경기까지 검색 가능하며, 결과는 링크로 출력됩니다.
 
