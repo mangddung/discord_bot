@@ -191,17 +191,16 @@ class Music(commands.Cog):
                     panel_message = await channel.send(embed=embed, view=view)
                     guild_info.message_id = panel_message.id
                     db.commit()
+                    asyncio.create_task(delete_message_later(ctx.message, 1))
+                    send_msg = await ctx.send("패널이 재생성되었습니다.")
+                    asyncio.create_task(delete_message_later(send_msg, 3))
+                    logger.info(f"Music || 패널 재생성 성공 | Guild: {guild.id}, Channel: {guild_info.channel_id}")
                 else:
                     await ctx.send("패널이 생성되지 않았습니다. /전용채널 명령어를 사용하여 패널을 생성하세요.")
             except Exception:
                 db.rollback()
                 await ctx.send("패널 재생성 중 오류가 발생했습니다. 다시 시도해주세요.")
                 logger.error(f"Music || 패널 재생성 중 오류 발생 | Guild: {guild.id}, Channel: {guild_info.channel_id}")
-            finally:
-                asyncio.create_task(delete_message_later(ctx.message, 1))
-                send_msg = await ctx.send("패널이 재생성되었습니다.")
-                asyncio.create_task(delete_message_later(send_msg, 3))
-                logger.info(f"Music || 패널 재생성 성공 | Guild: {guild.id}, Channel: {guild_info.channel_id}")
 
     # 봇 시작시 패널 재생성, 대기열 데이터 삭제
     @commands.Cog.listener()
@@ -266,9 +265,10 @@ class Music(commands.Cog):
                         search_result = video_search_url(message.content)
                     else:
                         search_result = video_search(message.content)[0]
-                except Exception:
+                except Exception as ex:
                     msg = await message.channel.send("검색 중 오류가 발생했습니다.")
                     asyncio.create_task(delete_message_later(msg, 3))
+                    logger.error(f"Music || 노래 검색 오류 발생: {ex}")
                     return
 
                 if not search_result:
@@ -329,12 +329,11 @@ class Music(commands.Cog):
             logger.info(f"Music || 🎵 {search_result['title']} 재생 시작 | Guild: {guild_id}, Music Id: {search_result['id']}, Duration: {search_result['duration']}, Requester : {member.id}")
 
         except Exception as ex:
-            print(f"Error(on_message): {ex}")
             with get_db() as db:
                 db.rollback()
             error_msg = await message.channel.send("오류가 발생했습니다. 다시 시도해주세요.")
             asyncio.create_task(delete_message_later(error_msg, 3))
-            logger.error(f"Music || 노래 재생 오류 발생 | Guild: {guild_id}, Channel: {channel_id}, Query: {message.content}")
+            logger.error(f"Music || 노래 재생 오류 발생 | Guild: {guild_id}, Channel: {channel_id}, Query: {message.content}, Err: {ex}")
 
     # 음성 채널 아무도 없으면 연결 해제
     @commands.Cog.listener()
@@ -467,6 +466,7 @@ async def create_panel_form(guild,play_queue = []):
             return
         voice_client.resume()
         await interaction.response.edit_message(content="곡을 재생합니다.", view=view)
+        logger.info(f"Music || 재생 버튼 입력 | Guild: {guild.id}, User: {interaction.user.id}")
 
     # 중지 버튼
     async def pause_btn_callback(interaction):
@@ -474,6 +474,7 @@ async def create_panel_form(guild,play_queue = []):
         if voice_client:
             voice_client.pause()
             await interaction.response.edit_message(content="곡이 중지되었습니다.", view=view)
+            logger.info(f"Music || 중지 버튼 입력 | Guild: {guild.id}, User: {interaction.user.id}")
 
     # 스킵 버튼
     async def skip_btn_callback(interaction):
@@ -481,6 +482,7 @@ async def create_panel_form(guild,play_queue = []):
         if voice_client:
             voice_client.stop()
             await interaction.response.edit_message(content="곡이 스킵되었습니다.", view=view)
+            logger.info(f"Music || 스킵 버튼 입력 | Guild: {guild.id}, User: {interaction.user.id}")
 
     #대기열 목록
     async def queue_dropdown_callback(interaction: discord.Interaction):
