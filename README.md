@@ -74,7 +74,7 @@ pip install -r requirements.txt
 ### 방법 2: Docker
 1. 이 저장소를 클론합니다.
 2. Docker를 설치해주세요.
-3. .env에 API키 및 FFmpeg 경로를, config.json에는 봇 환경을 설정합니다.
+3. .env에 API키를, config.json에는 봇 환경을 설정합니다.
 4. 다음 명령어로 Docker 컨테이너를 빌드하고 실행합니다.
 ```
  docker-compose up --build -d
