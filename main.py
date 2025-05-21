@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from db import engine, Base
+from utils.logger import logger
 
 import os
 import sys
@@ -47,17 +48,17 @@ class DiscordBot(commands.Bot):
                 extension = file[:-3]
                 try:
                     await self.load_extension(f"cogs.{extension}")
-                    print(f"Loaded extension '{extension}'")
+                    logger.info(f"Loaded extension '{extension}'")
                 except Exception as e:
                     exception = f"{type(e).__name__}: {e}"
-                    print(f"Failed to load extension {extension}\n{exception}")
+                    logger.error(f"Failed to load extension {extension}\n{exception}")
         # SQLAlchemy DB 설정
         Base.metadata.create_all(bind=engine)
 
     async def on_ready(self) -> None:
         await self.change_presence(activity=discord.Game(name=config["bot_activity"]))
         synced = await self.tree.sync()
-        print(f"✅ {len(synced)}개의 슬래시 명령어가 동기화됨!")
+        logger.info(f"{len(synced)}개의 슬래시 명령어가 동기화됨!")
 
     async def setup_hook(self) -> None:
         await self.load_cogs()
