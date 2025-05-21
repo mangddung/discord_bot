@@ -1,5 +1,6 @@
 __pycache__/
 config.json
+exchange.json
 .env
 *.db
 discord.log
