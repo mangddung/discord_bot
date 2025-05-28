@@ -151,13 +151,13 @@ def embed_form(game_info):
     inline_TF = 'kr_final_price' in game_info and 'ru_final_price' in game_info
     # 한국 가격 필드
     if game_info.get('kr_dc_percent', 0) > 0:
-        embed.add_field(name="한국 가격", value=f"~~{game_info['kr_initial_price']}~~ -> {game_info['kr_final_price']:,}원", inline=inline_TF)
+        embed.add_field(name="한국 가격", value=f"~~{game_info['kr_initial_price']:,}~~ (-{game_info['kr_dc_percent']}%) -> {game_info['kr_final_price']:,}원", inline=inline_TF)
     else:
         embed.add_field(name="한국 가격", value=f"{game_info['kr_final_price']:,}원", inline=inline_TF)
     
     # 러시아 가격 필드
     if game_info.get('ru_dc_percent', 0) > 0:
-        embed.add_field(name="러시아 가격", value=f"~~{game_info['ru_initial_price']}~~ -> {game_info['ru_final_price']:,}루블({game_info['ru_price_in_kr']})", inline=inline_TF)
+        embed.add_field(name="러시아 가격", value=f"~~{game_info['ru_initial_price']:,}~~ (-{game_info['kr_dc_percent']}%) -> {game_info['ru_final_price']:,}루블({game_info['ru_price_in_kr']})", inline=inline_TF)
     else:
         embed.add_field(name="러시아 가격", value=f"{game_info['ru_final_price']:,}루블({game_info['ru_price_in_kr']})", inline=inline_TF)
 
