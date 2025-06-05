@@ -10,6 +10,14 @@
 
 ## 📦 주요 기능
 
+### steam.py - Compare Country Price
+- Detects Steam store page links in messages  
+- Deletes the original message  
+- Sends an embed with game info and price comparison  
+- Compares prices between two regions defined in `config.json`  
+- Includes discount info and currency conversion  
+- Requires valid region settings in `config.json`
+
 ### [🎵 music.py - 음악 재생 봇](https://github.com/mangddung/music-bot)
 - 유튜브 링크 또는 검색어 기반으로 음악을 재생합니다.
 - 음악 대기열 관리 및 자동 재생을 지원합니다.
