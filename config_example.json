@@ -9,5 +9,16 @@
         "max_index": 400,
         "min_match": 10,
         "api_limit_interval": 3
+    },
+    "steam": {
+        "primary_region": {
+            "country_code": "KR",
+            "language": "korean",
+            "currency": "KRW"
+        },
+        "secondary_region": {
+            "country_code": "JP",
+            "currency": "JPY"
+        }
     }
 }
