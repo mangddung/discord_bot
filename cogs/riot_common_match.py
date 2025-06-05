@@ -27,9 +27,9 @@ API_KEY = os.getenv("RIOT_API")
 
 riot_match_config = config['riot_match']
 BASE_URL = riot_match_config['api_url'] 
-start = riot_match_config['start_index']        # Start index(Starting from latest match)
-increase= riot_match_config['increase_index']   # Increase index(Get 80 matches at a time)
-max = riot_match_config['max_index']            # Maximum number of matches to search
+start_index = riot_match_config['start_index']        # Start index(Starting from latest match)
+increase_index = riot_match_config['increase_index']   # Increase index(Get 80 matches at a time)
+max_index = riot_match_config['max_index']            # Maximum number of matches to search
 min_match_found = riot_match_config['min_match']
 api_limit_interval = riot_match_config['api_limit_interval']
 
@@ -57,7 +57,7 @@ def get_puuid(player_tag):
     else:
         return {'error': 'Riot api request failed'}
     
-def get_match_list(puuid, start=0, count=increase, game="lol"):
+def get_match_list(puuid, start=0, count=increase_index, game="lol"):
     url = f"{BASE_URL}/{game_match_urls[game]}/{puuid}/ids?start={start}&count={count}"
     headers = {"X-Riot-Token": API_KEY}
     response = requests.get(url, headers=headers)
@@ -120,7 +120,7 @@ class CommonMatch(commands.Cog):
         current_index = 0
         await interaction.response.send_message(f"🔍 검색 중입니다...", ephemeral=True)
 
-        while current_index <= max:
+        while current_index < max_index:
             try:
                 player1_matches.append(get_match_list(player1_puuid,current_index))
                 player1_matches_flat = list(itertools.chain(*player1_matches))
@@ -137,7 +137,7 @@ class CommonMatch(commands.Cog):
             if len(common_values) >= min_match_found:
                 break
 
-            current_index += increase
+            current_index += increase_index
             await asyncio.sleep(api_limit_interval)
 
         # 공통된 경기가 최소값 이상 있으면 결과 출력 
@@ -153,7 +153,7 @@ class CommonMatch(commands.Cog):
             # 검색 결과 정보 출력
             await interaction.followup.send(
                 f"[**{player1}**](https://www.deeplol.gg/summoner/KR/{player1_name_uri}-{player1_tag})과 "
-                f"[**{player2}**](https://www.deeplol.gg/summoner/KR/{player2_name_uri}-{player2_tag})의 최근 {current_index+increase} 경기중 공통된 경기 "
+                f"[**{player2}**](https://www.deeplol.gg/summoner/KR/{player2_name_uri}-{player2_tag})의 최근 {max(len(player1_matches_flat), len(player2_matches_flat))} 경기중 공통된 경기 "
                 f"{len(common_values)}개",
                 suppress_embeds=True
             )
@@ -161,7 +161,7 @@ class CommonMatch(commands.Cog):
             count = 1
 
             # 경기 상세 정보 (deeplol 전적 검색 사이트 링크) 응답
-            for match_id in common_values:
+            for match_id in common_values[:40]:
                 try:
                     # 한 메세지에 경기 최대 20개로 제한하여 분리 전송
                     if count >= 20 and count % 20 == 0:
