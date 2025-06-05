@@ -1,4 +1,13 @@
 {
     "prefix": "!",
-    "bot_activity": "프리픽스: ! 작동 중"
+    "bot_activity": "프리픽스: ! 작동 중",
+    "timezone" : "Asia/Seoul",
+    "riot_match": {
+        "api_url": "https://asia.api.riotgames.com",
+        "start_index": 0,
+        "increase_index": 80,
+        "max_index": 400,
+        "min_match": 10,
+        "api_limit_interval": 3
+    }
 }
