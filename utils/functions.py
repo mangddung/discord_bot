@@ -33,9 +33,15 @@ def time_str_to_int(time_str):
 
 # 시간 정수형 -> 문자열 변환 함수
 def time_int_to_str(time_int):
+    try:
+        time_int = int(time_int)  # int 변환
+    except (ValueError, TypeError):
+        return "0:00"
+
     hours = time_int // 3600
     minutes = (time_int % 3600) // 60
     seconds = time_int % 60
+
     if hours > 0:
         return f"{hours}:{minutes:02}:{seconds:02}"  # HH:MM:SS
     else:

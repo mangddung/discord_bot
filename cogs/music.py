@@ -262,7 +262,7 @@ class Music(commands.Cog):
                 # 유튜브 주소 검색, 쿼리 검색 확인
                 try:
                     if message.content.startswith("https://www.youtube.com/watch?v=") or message.content.startswith("https://youtu.be/"):
-                        search_result = video_search_url(message.content)
+                        search_result = video_search_url(message.content)[0]
                     else:
                         search_result = video_search(message.content)[0]
                 except Exception as ex:
@@ -409,6 +409,7 @@ def video_search_url(url):
     if 'youtu.be' in url:
         url = url.split('?')[0]
     video_info = Video.getInfo(url)
+    logger.info(video_info)
     video_title = video_info['title']
     video_id = video_info['id']
     video_duration = time_int_to_str(int(video_info['duration']['secondsText']))
