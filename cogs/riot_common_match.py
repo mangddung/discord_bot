@@ -84,7 +84,7 @@ class CommonMatch(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="롤", description=f"두 플레이어의 최근 {max}경기 중 공통된 경기를 찾습니다.")
+    @app_commands.command(name="롤", description=f"두 플레이어의 최근 {max_index}경기 중 공통된 경기를 찾습니다.")
     async def lol_match(self, interaction: discord.Interaction, player1: str, player2: str):
         # 입력값 검증
         if player1 == player2:
@@ -167,7 +167,7 @@ class CommonMatch(commands.Cog):
                     if count >= 20 and count % 20 == 0:
                         await interaction.followup.send(f"{match_info}", suppress_embeds=True)
                         match_info = ""
-                    match_info += f"{count}. [{match_id}](https://www.deeplol.gg/summoner/KR/{player1_name}-{player1_tag}/matches/{match_id})\n"
+                    match_info += f"{count}. [{match_id}](https://www.deeplol.gg/summoner/KR/{player1_name_uri}-{player1_tag}/matches/{match_id})\n"
                     count += 1
                 except ValueError as e:
                     print(f"Match info error {e}")

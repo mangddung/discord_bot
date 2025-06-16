@@ -313,7 +313,7 @@ class Music(commands.Cog):
             # 패널 업데이트
             await update_panel_message(message.guild)
 
-            async def play_music():
+            async def play_music(voice_client):
                 # 재생 프로세스(다운로드, 재생) 중복 요청 방지
                 if guild_id not in guild_locks:
                     guild_locks[guild_id] = asyncio.Lock()
@@ -332,7 +332,7 @@ class Music(commands.Cog):
                             after=after_playing
                         )
             # 노래 재생
-            asyncio.create_task(play_music())
+            asyncio.create_task(play_music(voice_client))
             logger.info(f"Music || 🎵 {search_result['title']} 재생 시작 | Guild: {guild_id}, Music Id: {search_result['id']}, Duration: {search_result['duration']}, Requester : {member.id}")
 
         except Exception as ex:

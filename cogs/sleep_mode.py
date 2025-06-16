@@ -163,8 +163,8 @@ class SleepEvent(commands.Cog):
             return
 
         current_time = datetime.now(tz)
-        start_dt = tz.localize(datetime.strptime(result.start_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day))
-        end_dt = tz.localize(datetime.strptime(result.end_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day))
+        start_dt = datetime.strptime(result.start_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day).replace(tzinfo=tz)
+        end_dt = datetime.strptime(result.end_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day).replace(tzinfo=tz)
 
         if end_dt < start_dt:
             if time(0, 0) <= current_time.time() <= end_dt.time():
@@ -211,8 +211,8 @@ async def check_sleep_mode(self):
                 if not member or not member.voice:
                     continue
 
-                start_dt = tz.localize(datetime.strptime(result.start_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day))
-                end_dt = tz.localize(datetime.strptime(result.end_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day))
+                start_dt = datetime.strptime(result.start_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day).replace(tzinfo=tz)
+                end_dt = datetime.strptime(result.end_time, "%H:%M").replace(year=current_time.year, month=current_time.month, day=current_time.day).replace(tzinfo=tz)
 
                 if end_dt < start_dt:
                     if time(0, 0) <= current_time.time() <= end_dt.time():
