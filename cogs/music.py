@@ -274,10 +274,16 @@ class Music(commands.Cog):
                 if not search_result:
                     return
 
-                voice_channel = member.voice.channel
-                voice_client = message.guild.voice_client
-                if not voice_client:
-                    voice_client = await member.voice.channel.connect()
+                member_voice_channel = member.voice.channel
+                bot_voice_client = message.guild.voice_client
+
+                if bot_voice_client and bot_voice_client.is_connected():
+                    # 봇과 다른 채널이면 요청자 채널로 이동
+                    if bot_voice_client.channel != member_voice_channel:
+                        await bot_voice_client.disconnect()
+                        voice_client = await member_voice_channel.connect()
+                else:
+                    voice_client = await member_voice_channel.connect()
 
                 asyncio.create_task(delete_message_later(message, 3))
 
@@ -308,6 +314,7 @@ class Music(commands.Cog):
             await update_panel_message(message.guild)
 
             async def play_music():
+                # 재생 프로세스(다운로드, 재생) 중복 요청 방지
                 if guild_id not in guild_locks:
                     guild_locks[guild_id] = asyncio.Lock()
                 lock = guild_locks[guild_id]
@@ -426,7 +433,6 @@ def video_search_url(url):
     }]
     return video
 
-# 임베드 함수
 #===============================================================================
 panel_message_list = {
     'resume' : "▶ 재생",
@@ -510,6 +516,7 @@ async def create_panel_form(guild,play_queue = []):
 
     return embed,view
 
+# 임베드 양식
 def playing_embed_form(video_info):
     embed = discord.Embed(
         title = video_info['title'],
@@ -523,6 +530,7 @@ def playing_embed_form(video_info):
 
     return embed
 
+# 노래 패널 업데이트
 async def update_panel_message(guild):
     try:
         with get_db() as db:
