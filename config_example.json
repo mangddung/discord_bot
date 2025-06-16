@@ -20,5 +20,8 @@
             "country_code": "JP",
             "currency": "JPY"
         }
+    },
+    "sleep_mode": {
+        "notice_intervals": [1, 5, 10, 30]
     }
 }

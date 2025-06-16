@@ -1,3 +1,5 @@
+# Note: 'check_holiday' uses 'is_holiday' for Korean holidays only — replace or remove for other regions.
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -8,6 +10,27 @@ import asyncio
 import pytz
 from holidayskr import is_holiday
 from utils.logger import logger
+import os
+import json
+import sys
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+# config 파일 불러오기
+# ========================================================================================
+config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "config.json")
+
+if not os.path.isfile(config_path):
+    sys.exit("'config.json' not found in project root! Please add it and try again.")
+else:
+    with open(config_path, encoding="utf-8") as file:
+        config = json.load(file)
+
+try:
+    tz = ZoneInfo(config['timezone'])
+    NOTICE_INTERVALS = config['sleep_mode']['notice_intervals']
+except ZoneInfoNotFoundError:
+    logger.error("Manage || Invalid timezone in config.json. Please input a valid IANA timezone (e.g. 'Asia/Seoul').")
+    sys.exit(1)
 
 # DB 테이블 정의
 # ========================================================================================
@@ -22,14 +45,14 @@ class SleepMode(Base):
     enabled = Column(Integer, default=0)
 
 # ========================================================================================
-tz = pytz.timezone('Asia/Seoul')
-NOTICE_INTERVALS = [1, 5, 10, 30]
 
+# 취침모드 설정 모달 폼
 class SleepModeModal(discord.ui.Modal, title="취침모드 설정"):
     weekdays_input = discord.ui.TextInput(label="요일 (평일, 휴일, 매일)", placeholder="평일, 휴일, 매일 중 하나 입력")
     start_time_input = discord.ui.TextInput(label="시작 시간 (HH:MM)", placeholder="예: 23:00")
     end_time_input = discord.ui.TextInput(label="종료 시간 (HH:MM)", placeholder="예: 06:00")
 
+    # 제출시 DB처리
     async def on_submit(self, interaction: discord.Interaction):
         weekdays = self.weekdays_input.value
         start_time = self.start_time_input.value
@@ -57,7 +80,7 @@ class SleepModeModal(discord.ui.Modal, title="취침모드 설정"):
             ))
             db.commit()
 
-        logger.info(f"SleepMode : {member_name}({interaction.user.id})님 취침모드 설정")
+        logger.info(f"SleepMode || {member_name}({interaction.user.id})님 취침모드 설정")
         await interaction.response.send_message(f"{weekdays}, {start_time}~{end_time}으로 설정되었습니다.", ephemeral=True)
 
 class SleepModeCommand(app_commands.Group):
@@ -69,6 +92,7 @@ class SleepModeCommand(app_commands.Group):
     async def set_sleep_mode(self, interaction: discord.Interaction):
         await interaction.response.send_modal(SleepModeModal())
 
+    # DB 조회 및 메세지 전송
     @app_commands.command(name="켜기", description="취침 모드를 활성화합니다.")
     async def activate_sleep_mode(self, interaction: discord.Interaction):
         with get_db() as db:
@@ -90,7 +114,7 @@ class SleepModeCommand(app_commands.Group):
                 message += "\n✅ 취침 모드가 활성화되었습니다."
 
         member_name = interaction.user.nick if interaction.user.nick else interaction.user.name
-        logger.info(f"SleepMode : {member_name}({interaction.user.id})님 취침모드 활성화")
+        logger.info(f"SleepMode || {member_name}({interaction.user.id})님 취침모드 활성화")
         await interaction.response.send_message(message, ephemeral=True)
 
     @app_commands.command(name="끄기", description="취침 모드를 비활성화합니다.")
@@ -110,17 +134,19 @@ class SleepModeCommand(app_commands.Group):
             db.commit()
 
         member_name = interaction.user.nick if interaction.user.nick else interaction.user.name
-        logger.info(f"SleepMode : {member_name}({interaction.user.id})님 취침모드 비활성화")
+        logger.info(f"SleepMode || {member_name}({interaction.user.id})님 취침모드 비활성화")
         await interaction.response.send_message("✅ 취침모드가 비활성화되었습니다.", ephemeral=True)
 
 class SleepEvent(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # check_sleep_mode 함수 루프 등록
     @commands.Cog.listener()
     async def on_ready(self):
         self.bot.loop.create_task(check_sleep_mode(self))
 
+    # 보이스 채널 변경시 추방 여부 확인
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         member_name = member.nick if member.nick else member.name
@@ -149,18 +175,19 @@ class SleepEvent(commands.Cog):
         try:
             holiday = check_holiday(end_dt)
         except:
-            logger.error(f"SleepMode : 날짜 형식 오류 발생 : {result}")
+            logger.error(f"SleepMode || 날짜 형식 오류 발생 | {result}")
             return
 
+        # 설정, 휴일 여부 비교하여 조건에 맞는 경우 스킵
         if (result.weekdays == holiday) and not (result.weekdays and result.weekends):
             return
 
         if start_dt <= current_time <= end_dt:
             await member.move_to(None)
             await member.send("현재 취침 시간입니다. 보이스 채널에 접속할 수 없습니다.")
-            logger.info(f"SleepMode : {member_name}({member.id})님 취침모드 추방")
+            logger.info(f"SleepMode || {member_name}({member.id})님 취침모드 추방")
 
-
+# 휴일인지 체크하는 함수(공휴일, 주말)
 def check_holiday(dt):
     if not isinstance(dt, datetime):
         raise TypeError("올바른 날짜 형식이 아닙니다.")
@@ -168,6 +195,7 @@ def check_holiday(dt):
     week = dt.weekday() >= 5
     return holiday or week
 
+# 1분 간격으로 멤버가 추방 조건이 되는지 확인
 async def check_sleep_mode(self):
     await self.bot.wait_until_ready()
     while not self.bot.is_closed():
@@ -199,14 +227,14 @@ async def check_sleep_mode(self):
                 if start_dt <= current_time <= end_dt:
                     await member.move_to(None)
                     await member.send("현재 취침 시간입니다. 보이스 채널에 접속할 수 없습니다.")
-                    logger.info(f"SleepMode : {member_name}({member.id})님 취침모드 추방")
+                    logger.info(f"SleepMode || {member_name}({member.id})님 취침모드 추방")
                     continue
 
                 for notice_interval in NOTICE_INTERVALS:
                     notice_time = start_dt - timedelta(minutes=notice_interval)
                     if notice_time <= current_time < (notice_time + timedelta(seconds=59)):
                         await member.send(f"곧 취침 시간입니다. {notice_interval}분 남았습니다.")
-                        logger.info(f"SleepMode : {member_name}({member.id})님에게 {notice_interval}분전 메세지 전송")
+                        logger.info(f"SleepMode || {member_name}({member.id})님에게 {notice_interval}분전 메세지 전송")
 
         elapsed_time = (datetime.now(tz) - current_time).total_seconds()
         await asyncio.sleep(max(60 - elapsed_time, 0))
