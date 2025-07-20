@@ -7,7 +7,7 @@ import pprint
 import asyncio
 import urllib.parse
 from datetime import datetime, timezone
-from utils.logger import logger
+from utils import *
 import json
 import sys
 import os
@@ -187,7 +187,7 @@ def embed_form(author, game_info):
     embed = discord.Embed(
         title = game_info['name'],
         url = f"https://store.steampowered.com/app/{game_info['app_id']}/{safe_name}/",
-        description=game_info['short_description'],
+        description=f"[Steam DB](https://steamdb.info/app/{game_info['app_id']})\n{game_info['short_description']}",
         color=discord.Color.default()
     )
 

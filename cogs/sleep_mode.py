@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, Integer
 import asyncio
 import pytz
 from holidayskr import is_holiday
-from utils.logger import logger
+from utils import *
 import os
 import json
 import sys

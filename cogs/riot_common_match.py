@@ -10,7 +10,7 @@ import time
 import json
 import sys
 import asyncio
-from utils.logger import logger
+from utils import *
 import urllib.parse
 
 # json 파일 load

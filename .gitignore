@@ -10,3 +10,4 @@ self_bot.py
 /functions.py
 cogs/jungan.py
 cogs/z_*.py
+.cache
